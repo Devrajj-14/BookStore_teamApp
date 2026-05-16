@@ -4,16 +4,22 @@ import com.bookstore.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
- * Repository for Order entity
- * 
- * TODO: Implement the following methods:
- * - List<Order> findByUserIdOrderByCreatedAtDesc(Long userId)
- * - Optional<Order> findByIdAndUserId(Long orderId, Long userId)
- * - List<Order> findAllByOrderByCreatedAtDesc()
- * - List<Order> findByStatus(OrderStatus status)
+ * Repository for Order entity.
+ * Provides queries needed by OrderService for user order history and admin management.
  */
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    // TODO: Add custom query methods
+
+    // Fetch all orders placed by a specific user, newest first
+    List<Order> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    // Fetch orders filtered by status (for admin dashboard)
+    List<Order> findByStatusOrderByCreatedAtDesc(String status);
+
+    // Check if a user has any delivered order containing a specific product
+    // (used later to gate feedback submission)
+    boolean existsByUserIdAndStatus(Long userId, String status);
 }
