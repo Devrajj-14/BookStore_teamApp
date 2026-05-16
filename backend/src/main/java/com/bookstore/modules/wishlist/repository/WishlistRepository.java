@@ -6,13 +6,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-/**
- * Repository for Wishlist entity
- * 
- * TODO: Implement the following methods:
- * - Optional<Wishlist> findByUserId(Long userId)
- */
 @Repository
 public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
-    // TODO: Add custom query methods
+
+    Optional<Wishlist> findByUserId(Long userId);
 }
