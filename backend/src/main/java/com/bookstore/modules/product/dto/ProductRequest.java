@@ -1,21 +1,30 @@
 package com.bookstore.modules.product.dto;
 
+import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 
-public class ProductResponse {
+public class ProductRequest {
 
-    private Long id;
+    @NotBlank(message = "Title is required")
     private String title;
-    private String author;
-    private String isbn;
-    private BigDecimal price;
-    private Integer stockQuantity;
-    private String imageUrl;
-    private Long categoryId;
-    private String categoryName;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @NotBlank(message = "Author is required")
+    private String author;
+
+    private String isbn;
+
+    @NotNull(message = "Price is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
+    private BigDecimal price;
+
+    @NotNull(message = "Stock quantity is required")
+    @Min(value = 0, message = "Stock quantity cannot be negative")
+    private Integer stockQuantity;
+
+    private String imageUrl;
+
+    @NotNull(message = "Category ID is required")
+    private Long categoryId;
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -37,7 +46,4 @@ public class ProductResponse {
 
     public Long getCategoryId() { return categoryId; }
     public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
-
-    public String getCategoryName() { return categoryName; }
-    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
 }

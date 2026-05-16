@@ -1,22 +1,28 @@
 package com.bookstore.common;
 
-/**
- * Generic API Response wrapper
- * 
- * TODO: Implement as a record or class with the following fields:
- * - boolean success
- * - String message
- * - T data (generic type)
- * 
- * TODO: Add static factory methods:
- * - ApiResponse<T> success(T data)
- * - ApiResponse<T> success(String message, T data)
- * - ApiResponse<Void> error(String message)
- * 
- * Example usage:
- * return ResponseEntity.ok(ApiResponse.success("User created", userResponse));
- * return ResponseEntity.badRequest().body(ApiResponse.error("Invalid input"));
- */
+import lombok.Data;
+
+@Data
 public class ApiResponse<T> {
-    // TODO: Implement API response wrapper
+    private boolean success;
+    private String message;
+    private T data;
+
+    private ApiResponse(boolean success, String message, T data) {
+        this.success = success;
+        this.message = message;
+        this.data = data;
+    }
+
+    public static <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<>(true, "Success", data);
+    }
+
+    public static <T> ApiResponse<T> success(String message, T data) {
+        return new ApiResponse<>(true, message, data);
+    }
+
+    public static <T> ApiResponse<T> error(String message) {
+        return new ApiResponse<>(false, message, null);
+    }
 }
