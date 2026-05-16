@@ -1,22 +1,54 @@
 package com.bookstore.common;
 
 /**
- * Generic API Response wrapper
+ * Generic API Response wrapper for consistent API responses
  * 
- * TODO: Implement as a record or class with the following fields:
- * - boolean success
- * - String message
- * - T data (generic type)
- * 
- * TODO: Add static factory methods:
- * - ApiResponse<T> success(T data)
- * - ApiResponse<T> success(String message, T data)
- * - ApiResponse<Void> error(String message)
- * 
- * Example usage:
- * return ResponseEntity.ok(ApiResponse.success("User created", userResponse));
- * return ResponseEntity.badRequest().body(ApiResponse.error("Invalid input"));
+ * @param <T> The type of data being returned
  */
-public class ApiResponse<T> {
-    // TODO: Implement API response wrapper
+public record ApiResponse<T>(
+    boolean success,
+    String message,
+    T data
+) {
+    
+    /**
+     * Create a success response with data
+     * 
+     * @param data The response data
+     * @return ApiResponse with success=true
+     */
+    public static <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<>(true, "Success", data);
+    }
+    
+    /**
+     * Create a success response with custom message and data
+     * 
+     * @param message Custom success message
+     * @param data The response data
+     * @return ApiResponse with success=true
+     */
+    public static <T> ApiResponse<T> success(String message, T data) {
+        return new ApiResponse<>(true, message, data);
+    }
+    
+    /**
+     * Create an error response with message
+     * 
+     * @param message Error message
+     * @return ApiResponse with success=false and null data
+     */
+    public static <Void> ApiResponse<Void> error(String message) {
+        return new ApiResponse<>(false, message, null);
+    }
+    
+    /**
+     * Create a success response with only message (no data)
+     * 
+     * @param message Success message
+     * @return ApiResponse with success=true and null data
+     */
+    public static <Void> ApiResponse<Void> success(String message) {
+        return new ApiResponse<>(true, message, null);
+    }
 }
