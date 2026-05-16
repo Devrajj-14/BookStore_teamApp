@@ -1,13 +1,13 @@
 package com.bookstore.modules.cart.dto;
 
-/**
- * DTO for Update Cart Item Request
- * 
- * TODO: Implement the following fields:
- * - Integer quantity (required, @Min(1))
- * 
- * TODO: Add validation annotations
- */
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+@Data
 public class UpdateCartItemRequest {
-    // TODO: Implement update cart item request fields
+
+    @NotNull(message = "Quantity is required")
+    @Min(value = 1, message = "Quantity must be at least 1")
+    private Integer quantity;
 }
