@@ -1,15 +1,13 @@
 package com.bookstore.modules.customer.dto;
 
-/**
- * DTO for Customer Details Request
- * 
- * TODO: Implement the following fields:
- * - String phone (@Pattern for phone validation)
- * - String preferenceNotes
- * - AddressRequest defaultAddress
- * 
- * TODO: Add validation annotations
- */
+import jakarta.validation.constraints.Pattern;
+import lombok.Data;
+
+@Data
 public class CustomerDetailsRequest {
-    // TODO: Implement customer details request fields
+
+    @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invalid phone number")
+    private String phone;
+
+    private String preferenceNotes;
 }
