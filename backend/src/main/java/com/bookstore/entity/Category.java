@@ -1,12 +1,7 @@
 package com.bookstore.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
-/**
- * Represents a book category used to group products
- */
-@Data
 @Entity
 @Table(name = "categories")
 public class Category {
@@ -20,4 +15,15 @@ public class Category {
 
     @Column
     private String description;
+
+    public Category() {}
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 }
