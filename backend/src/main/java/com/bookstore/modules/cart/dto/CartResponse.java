@@ -1,18 +1,15 @@
 package com.bookstore.modules.cart.dto;
 
-/**
- * DTO for Cart Response
- * 
- * TODO: Implement the following fields:
- * - Long id
- * - Long userId
- * - List<CartItemResponse> items
- * - BigDecimal totalAmount
- * - LocalDateTime updatedAt
- * 
- * TODO: Add validation annotations where needed
- * TODO: Consider using record or @Data from Lombok
- */
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@Data
 public class CartResponse {
-    // TODO: Implement cart response fields
+
+    private Long id;
+    private Long userId;
+    private List<CartItemResponse> items;
+    private BigDecimal totalAmount;
 }
