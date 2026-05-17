@@ -1,5 +1,6 @@
 package com.bookstore.controller;
 
+import com.bookstore.common.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,22 +18,22 @@ import java.util.Map;
 public class HealthController {
 
     @GetMapping("/health")
-    public Map<String, Object> health() {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", "UP");
-        response.put("message", "Bookstore Backend is running successfully!");
-        response.put("timestamp", LocalDateTime.now());
-        response.put("version", "0.0.1-SNAPSHOT");
-        return response;
+    public ApiResponse<Map<String, Object>> health() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("status", "UP");
+        data.put("timestamp", LocalDateTime.now());
+        data.put("version", "0.0.1-SNAPSHOT");
+        return ApiResponse.success("Bookstore Backend is running successfully!", data);
     }
 
     @GetMapping("/")
-    public Map<String, String> welcome() {
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Welcome to Bookstore API");
-        response.put("health", "/api/health");
-        response.put("h2Console", "/h2-console");
-        response.put("documentation", "See IMPLEMENTATION_GUIDE.md for details");
-        return response;
+    public ApiResponse<Map<String, String>> welcome() {
+        Map<String, String> data = new HashMap<>();
+        data.put("health", "/api/health");
+        data.put("swagger", "/swagger-ui.html");
+        data.put("h2Console", "/h2-console");
+        data.put("documentation", "See IMPLEMENTATION_GUIDE.md for details");
+        return ApiResponse.success("Welcome to Bookstore API", data);
     }
 }
+

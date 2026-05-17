@@ -1,14 +1,17 @@
 package com.bookstore.modules.order.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 /**
- * DTO for Order Status Update (Admin only)
- * 
- * TODO: Implement the following fields:
- * - String status (required, @NotBlank)
- * - String notes (optional)
- * 
- * TODO: Validate status is valid OrderStatus enum value
+ * Request payload for updating the status of an existing order.
+ * Used by the admin to move an order through its lifecycle
+ * (e.g. PENDING → CONFIRMED → SHIPPED → DELIVERED).
  */
 public class OrderStatusUpdateRequest {
-    // TODO: Implement order status update request fields
+
+    @NotBlank(message = "Status is required")
+    private String status;
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }
