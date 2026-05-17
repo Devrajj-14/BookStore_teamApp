@@ -8,11 +8,13 @@ import Register from '../pages/Register'
 import Cart from '../pages/Cart'
 import Checkout from '../pages/Checkout'
 import Orders from '../pages/Orders'
+import Profile from '../pages/Profile'
 import NotFound from '../pages/NotFound'
 import Dashboard from '../pages/admin/Dashboard'
 import ProductManagement from '../pages/admin/ProductManagement'
 import OrderManagement from '../pages/admin/OrderManagement'
 import UserManagement from '../pages/admin/UserManagement'
+import PrivateRoute from '../components/PrivateRoute'
 
 const AppRoutes = () => {
   return (
@@ -24,9 +26,10 @@ const AppRoutes = () => {
         <Route path="books/:id" element={<BookDetails />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
-        <Route path="cart" element={<Cart />} />
-        <Route path="checkout" element={<Checkout />} />
-        <Route path="orders" element={<Orders />} />
+        <Route path="cart" element={<PrivateRoute><Cart /></PrivateRoute>} />
+        <Route path="checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
+        <Route path="orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
+        <Route path="profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
 
         {/* Admin routes */}
         <Route path="admin" element={<Dashboard />} />
