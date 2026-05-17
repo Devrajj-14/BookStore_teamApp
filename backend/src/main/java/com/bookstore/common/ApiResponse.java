@@ -1,12 +1,16 @@
 package com.bookstore.common;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
-@Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
+
     private boolean success;
     private String message;
     private T data;
+
+    // Required by Jackson for deserialization
+    public ApiResponse() {}
 
     private ApiResponse(boolean success, String message, T data) {
         this.success = success;
@@ -25,4 +29,14 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> error(String message) {
         return new ApiResponse<>(false, message, null);
     }
+
+    // Getters (required by Jackson for serialization)
+    public boolean isSuccess() { return success; }
+    public String getMessage() { return message; }
+    public T getData() { return data; }
+
+    // Setters
+    public void setSuccess(boolean success) { this.success = success; }
+    public void setMessage(String message) { this.message = message; }
+    public void setData(T data) { this.data = data; }
 }
