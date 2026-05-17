@@ -1,16 +1,14 @@
 package com.bookstore.modules.wishlist.dto;
 
-/**
- * DTO for Wishlist Response
- * 
- * TODO: Implement the following fields:
- * - Long id
- * - Long userId
- * - List<WishlistItemResponse> items
- * - Integer totalItems
- * 
- * TODO: Consider using record or @Data from Lombok
- */
+import lombok.Data;
+
+import java.util.List;
+
+@Data
 public class WishlistResponse {
-    // TODO: Implement wishlist response fields
+
+    private Long id;
+    private Long userId;
+    private List<WishlistItemResponse> items;
+    private Integer totalItems;
 }

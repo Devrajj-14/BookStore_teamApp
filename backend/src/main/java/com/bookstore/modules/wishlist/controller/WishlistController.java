@@ -1,28 +1,52 @@
 package com.bookstore.modules.wishlist.controller;
 
+import com.bookstore.common.ApiResponse;
+import com.bookstore.modules.wishlist.dto.WishlistResponse;
+import com.bookstore.modules.wishlist.service.WishlistService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * REST Controller for Wishlist operations
- * 
- * TODO: Implement the following endpoints:
- * - GET    /api/wishlist                - Get current user's wishlist
- * - POST   /api/wishlist/add/{productId} - Add product to wishlist
- * - DELETE /api/wishlist/remove/{productId} - Remove product from wishlist
- * - GET    /api/wishlist/check/{productId} - Check if product is in wishlist
- * 
- * TODO: Add security:
- * - @PreAuthorize("hasRole('USER')") on all methods
- * - Get userId from SecurityContext
- * 
- * TODO: Return proper HTTP status codes:
- * - 200 OK for successful operations
- * - 201 Created for add to wishlist
- * - 204 No Content for remove
- * - 409 Conflict if product already in wishlist
- */
 @RestController
 @RequestMapping("/api/wishlist")
 public class WishlistController {
-    // TODO: Implement wishlist controller endpoints
+
+    private final WishlistService wishlistService;
+
+    public WishlistController(WishlistService wishlistService) {
+        this.wishlistService = wishlistService;
+    }
+
+    // GET /api/wishlist — get current user's wishlist
+    @GetMapping
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ApiResponse<WishlistResponse>> getWishlist() {
+        WishlistResponse wishlist = wishlistService.getWishlist();
+        return ResponseEntity.ok(ApiResponse.success(wishlist));
+    }
+
+    // POST /api/wishlist/add/{productId} — add product to wishlist
+    @PostMapping("/add/{productId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ApiResponse<WishlistResponse>> addToWishlist(@PathVariable Long productId) {
+        WishlistResponse wishlist = wishlistService.addToWishlist(productId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Product added to wishlist", wishlist));
+    }
+
+    // DELETE /api/wishlist/remove/{productId} — remove product from wishlist
+    @DeleteMapping("/remove/{productId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> removeFromWishlist(@PathVariable Long productId) {
+        wishlistService.removeFromWishlist(productId);
+        return ResponseEntity.noContent().build();
+    }
+
+    // GET /api/wishlist/check/{productId} — check if product is in wishlist
+    @GetMapping("/check/{productId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ApiResponse<Boolean>> checkInWishlist(@PathVariable Long productId) {
+        boolean inWishlist = wishlistService.isInWishlist(productId);
+        return ResponseEntity.ok(ApiResponse.success(inWishlist));
+    }
 }
