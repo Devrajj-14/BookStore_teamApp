@@ -1,17 +1,18 @@
 package com.bookstore.modules.customer.dto;
 
-/**
- * DTO for Address Response
- * 
- * TODO: Implement the following fields:
- * - Long id
- * - String line1
- * - String line2
- * - String city
- * - String state
- * - String pincode
- * - Boolean isDefault
- */
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class AddressResponse {
-    // TODO: Implement address response fields
+    private Long id;
+    private String line1;
+    private String line2;
+    private String city;
+    private String state;
+    private String pincode;
+    private Boolean isDefault;
 }

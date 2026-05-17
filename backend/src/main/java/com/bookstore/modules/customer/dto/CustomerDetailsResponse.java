@@ -1,16 +1,19 @@
 package com.bookstore.modules.customer.dto;
 
-/**
- * DTO for Customer Details Response
- * 
- * TODO: Implement the following fields:
- * - Long id
- * - Long userId
- * - String phone
- * - String preferenceNotes
- * - List<AddressResponse> addresses
- * - AddressResponse defaultAddress
- */
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CustomerDetailsResponse {
-    // TODO: Implement customer details response fields
+    private Long id;
+    private Long userId;
+    private String phone;
+    private String preferenceNotes;
+    private List<AddressResponse> addresses;
+    private AddressResponse defaultAddress;
 }
