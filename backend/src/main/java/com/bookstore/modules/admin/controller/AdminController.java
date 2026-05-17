@@ -1,28 +1,43 @@
 package com.bookstore.modules.admin.controller;
 
+import com.bookstore.common.ApiResponse;
+import com.bookstore.modules.admin.dto.DashboardResponse;
+import com.bookstore.modules.admin.dto.UserListResponse;
+import com.bookstore.modules.admin.service.AdminService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * REST Controller for Admin operations
- * 
- * TODO: Implement the following endpoints:
- * - GET    /api/admin/dashboard           - Get dashboard statistics
- * - GET    /api/admin/users               - Get all users
- * - PUT    /api/admin/users/{id}/status   - Toggle user active status
- * - GET    /api/admin/orders              - Get all orders (with filters)
- * - GET    /api/admin/products/low-stock  - Get low stock products
- * 
- * TODO: Add security:
- * - @PreAuthorize("hasRole('ADMIN')") on all methods
- * 
- * TODO: Add pagination and filtering:
- * - Use Pageable for list endpoints
- * - Add filters for date range, status, etc.
- * 
- * TODO: Return proper HTTP status codes
- */
+import java.util.List;
+
+// NOTE: @PreAuthorize("hasRole('ADMIN')") will be added once Rajveer's auth is merged
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
-    // TODO: Implement admin controller endpoints
+
+    private final AdminService adminService;
+
+    public AdminController(AdminService adminService) {
+        this.adminService = adminService;
+    }
+
+    // GET /api/admin/dashboard
+    @GetMapping("/dashboard")
+    public ResponseEntity<ApiResponse<DashboardResponse>> getDashboard() {
+        DashboardResponse stats = adminService.getDashboardStats();
+        return ResponseEntity.ok(ApiResponse.success("Dashboard stats fetched", stats));
+    }
+
+    // GET /api/admin/users
+    @GetMapping("/users")
+    public ResponseEntity<ApiResponse<List<UserListResponse>>> getAllUsers() {
+        List<UserListResponse> users = adminService.getAllUsers();
+        return ResponseEntity.ok(ApiResponse.success("Users fetched", users));
+    }
+
+    // GET /api/admin/users/{id}
+    @GetMapping("/users/{id}")
+    public ResponseEntity<ApiResponse<UserListResponse>> getUserById(@PathVariable Long id) {
+        UserListResponse user = adminService.getUserById(id);
+        return ResponseEntity.ok(ApiResponse.success(user));
+    }
 }
