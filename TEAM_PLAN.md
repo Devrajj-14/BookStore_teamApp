@@ -1,19 +1,20 @@
 # BookStore Team Plan
 
 > **Single source of truth. Read this at the start of every session before touching any code.**
+> Last updated: 2026-05-17
 
 ---
 
-## Branch Assignments (Devraj's Original Structure — Follow This)
+## Branch Assignments
 
 | Branch | Owner | Scope |
 |--------|-------|-------|
-| `feature/configuration` | **Devraj** | ApiResponse, AppConstants, OrderStatus, all exception classes ✅ DONE — needs PR |
-| `feature/product` | **Devraj** | Product catalog — repository, service, controller, DTOs ✅ DONE — needs PR |
-| `feature/admin` | **Devraj** | Admin service, controller, DTOs + admin frontend pages |
-| `feature/dashboard` | **Devraj** | Admin dashboard frontend + Home + Books pages |
-| `feature/auth` | **Rajveer** | JWT, Spring Security, user module (register, login, get/update profile) |
-| `feature/profile` | **Rajveer** | Customer profile, addresses + frontend Login, Register, Profile pages |
+| `feature/configuration` | **Devraj** | ApiResponse, AppConstants, OrderStatus, exception classes |
+| `feature/product` | **Devraj** | Product catalog — repository, service, controller, DTOs |
+| `feature/admin` | **Devraj** | Admin backend + admin frontend pages |
+| `feature/dashboard` | **Devraj** | Home page, Books page (partially done via admin branch) |
+| `feature/auth` | **Rajveer** | JWT, Spring Security, user module |
+| `feature/profile` | **Rajveer** | Customer profile + addresses + frontend auth pages |
 | `feature/cart` | **Bhramika** | Cart backend + Cart frontend page |
 | `feature/wishlist` | **Bhramika** | Wishlist backend + Wishlist frontend page |
 | `feature/order` | **Karthik** | Order backend + Checkout + Orders frontend pages |
@@ -23,260 +24,204 @@
 
 ---
 
-## Current Status of Every Branch
+## Current Status — What Is Done
 
-| Branch | Status | Notes |
-|--------|--------|-------|
-| `develop` | ✅ Base + TEAM_PLAN | Has entities, config, partial common utilities. Others merge into here via PR |
-| `feature/configuration` | ✅ DONE — PR PENDING | ApiResponse, OrderStatus, all 3 exception classes fully implemented |
-| `feature/product` | ✅ DONE — PR PENDING | Full product API with search, filter, pagination, categories |
-| `feature/auth` | 🔴 Not started | At original boilerplate — Rajveer starts here |
-| `feature/profile` | 🔴 Not started | At original boilerplate — Rajveer starts here after feature/auth |
-| `feature/cart` | 🔴 Not started | At original boilerplate — Bhramika starts here |
-| `feature/wishlist` | 🔴 Not started | At original boilerplate — Bhramika starts here after feature/cart |
-| `feature/order` | 🔴 Not started | At original boilerplate — Karthik starts here |
-| `feature/feedback` | 🔴 Not started | At original boilerplate — Karthik starts here |
-| `feature/admin` | 🔴 Not started | Devraj starts after configuration and product are merged |
-| `feature/dashboard` | 🔴 Not started | Devraj starts last |
-
----
-
-## What Is Already Built and Must Not Be Touched
-
-### Entities — ALL 12 COMPLETE in develop ✅
-```
-User, Product, Category
-Cart, CartItem
-Wishlist, WishlistItem
-Order, OrderItem
-CustomerProfile, Address
-Feedback
-```
-**Never modify entity files without Devraj's approval.**
-
-### Config — COMPLETE in develop ✅
-- `config/CorsConfig.java` — allows localhost 3000, 5173, 4200
-- `config/SwaggerConfig.java` — JWT Bearer auth configured
-- `controller/HealthController.java` — GET /api/health works
-
-### Common utilities — COMPLETE in feature/configuration ✅ (not yet in develop)
-- `common/ApiResponse.java`
-- `common/OrderStatus.java`
-- `exception/ResourceNotFoundException.java`
-- `exception/BadRequestException.java`
-- `exception/GlobalExceptionHandler.java`
-
-### Product module — COMPLETE in feature/product ✅ (not yet in develop)
-- `modules/product/repository/ProductRepository.java` + `CategoryRepository.java`
-- `modules/product/dto/ProductRequest.java` + `ProductResponse.java`
-- `modules/product/service/ProductService.java`
-- `modules/product/controller/ProductController.java`
+| Branch | Status | What's in develop |
+|--------|--------|-------------------|
+| `feature/configuration` | ✅ MERGED | ApiResponse, AppConstants, OrderStatus, all exception classes |
+| `feature/product` | ✅ MERGED | Full product API — ProductRepository, CategoryRepository, ProductService, ProductController, DTOs |
+| `feature/admin` | ✅ MERGED | AdminService, AdminController, DashboardResponse, UserListResponse + admin frontend pages (Dashboard, ProductManagement, OrderManagement, UserManagement) |
+| `feature/auth` | ✅ MERGED (PR #1) | JwtUtil, JwtAuthFilter, UserDetailsServiceImpl, SecurityConfig, UserRepository, AuthService, AuthController, UserService, UserController, all auth DTOs |
+| `feature/order` | ✅ MERGED (PR #2) | OrderRepository, OrderItemRepository, OrderRequest, OrderResponse, OrderItemResponse, OrderStatusUpdateRequest — **service + controller + frontend still TODO** |
+| `feature/feedback` | ✅ MERGED (PR #3) | FeedbackRepository, FeedbackRequest, FeedbackResponse, RatingSummary — **service + controller + frontend still TODO** |
+| `feature/profile` | ✅ MERGED (PR #4) | CustomerProfileRepository, AddressRepository, all customer DTOs, CustomerService, CustomerController + frontend: Login.jsx, Register.jsx, Profile.jsx, AuthContext, axiosClient, authApi, profileApi, PrivateRoute, Navbar (auth-aware), AppRoutes updated |
+| `feature/cart` | 🟡 IN PROGRESS | CartRepository, CartItemRepository, CartResponse, AddToCartRequest, UpdateCartItemRequest on branch — **NOT merged. Service + controller + Cart.jsx still TODO** |
+| `feature/wishlist` | 🟡 IN PROGRESS | WishlistRepository, WishlistItemRepository, WishlistResponse, WishlistItemResponse on branch — **NOT merged. Service + controller + Wishlist.jsx still TODO** |
+| `feature/dashboard` | 🟡 PARTIAL | Home.jsx and Books.jsx updated via admin branch — already in develop. Branch itself has no new commits |
 
 ---
 
-## Merge Order — Everyone Follow This Sequence
+## What Is in develop RIGHT NOW (safe to depend on)
 
+### Backend
 ```
-1. Devraj: PR feature/configuration → develop   (resolves any conflicts)
-   Chat: "MERGED: configuration — everyone rebase before starting"
+security/
+  JwtUtil.java, JwtAuthFilter.java, UserDetailsServiceImpl.java, SecurityConfig.java
 
-2. Devraj: PR feature/product → develop
-   Chat: "MERGED: product"
+modules/user/
+  repository/UserRepository.java         — findByEmail, existsByEmail
+  service/AuthService.java, UserService.java
+  controller/AuthController.java, UserController.java
+  dto/RegisterRequest, LoginRequest, AuthResponse, UserResponse
 
-3. Everyone: rebase their branch onto develop
-   git fetch origin
-   git checkout feature/<your-branch>
-   git rebase origin/develop
+modules/customer/
+  repository/CustomerProfileRepository.java, AddressRepository.java
+  service/CustomerService.java
+  controller/CustomerController.java
+  dto/AddressRequest, AddressResponse, CustomerDetailsRequest, CustomerDetailsResponse
 
-4. Rajveer: implement feature/auth → PR → develop
-   Chat: "MERGED: auth — Bhramika + Karthik can now use SecurityContext"
+modules/product/
+  repository/ProductRepository.java, CategoryRepository.java
+  service/ProductService.java
+  controller/ProductController.java
+  dto/ProductRequest, ProductResponse
 
-5. Bhramika: implement feature/cart → PR → develop
-   Chat: "MERGED: cart — Karthik can now use CartRepository in OrderService"
+modules/admin/
+  service/AdminService.java
+  controller/AdminController.java
+  dto/DashboardResponse, UserListResponse
 
-6. Karthik: implement feature/order (can start repositories + DTOs earlier)
-   Karthik: implement feature/feedback
+modules/order/           — repositories + DTOs only (service/controller TODO)
+modules/feedback/        — repository + DTOs only (service/controller TODO)
 
-7. Rajveer: implement feature/profile → PR → develop
-
-8. Bhramika: implement feature/wishlist → PR → develop
-
-9. Devraj: implement feature/admin → PR → develop
-
-10. All: final integration testing → develop → main
+common/ApiResponse.java, AppConstants.java, OrderStatus.java
+exception/ResourceNotFoundException.java, BadRequestException.java, GlobalExceptionHandler.java
+entity/  — all 12 entities (User, Product, Category, Cart, CartItem, Wishlist, WishlistItem, Order, OrderItem, CustomerProfile, Address, Feedback)
 ```
 
----
-
-## Rajveer — Tasks for feature/auth
-
-Rebase onto develop first, then implement these files in order:
-
-**Step 1 — Fix and implement repositories + DTOs (no compile dependencies)**
-
-| File | What to write |
-|------|--------------|
-| `modules/user/repository/UserRepository.java` | Fix package to `com.bookstore.modules.user.repository`. Add: `Optional<User> findByEmail(String email)`, `boolean existsByEmail(String email)` |
-| `modules/user/dto/RegisterRequest.java` | Fix package. Fields: `String name` (@NotBlank), `String email` (@Email @NotBlank), `String password` (@NotBlank @Size(min=6)) |
-| `modules/user/dto/LoginRequest.java` | Fix package. Fields: `String email` (@Email @NotBlank), `String password` (@NotBlank) |
-| `modules/user/dto/AuthResponse.java` | Fix package. Fields: `String token`, `String type = "Bearer"`, `Long userId`, `String email`, `String name`, `String role` |
-| `modules/user/dto/UserResponse.java` | Fix package. Fields: `Long id`, `String name`, `String email`, `String role`, `LocalDateTime createdAt` |
-
-**Step 2 — Security layer**
-
-| File | What to write |
-|------|--------------|
-| `security/JwtUtil.java` | `generateToken(UserDetails)`, `validateToken(String, UserDetails)`, `extractEmail(String)` — uses `@Value("${jwt.secret}")` and `@Value("${jwt.expiration}")` |
-| `security/UserDetailsServiceImpl.java` | Implements `UserDetailsService`. `loadUserByUsername(email)` → calls `UserRepository.findByEmail` |
-| `security/JwtAuthFilter.java` | Extends `OncePerRequestFilter`. Reads `Authorization: Bearer <token>`, validates, sets `SecurityContextHolder` |
-| `security/SecurityConfig.java` | Add `@EnableMethodSecurity`. Wire `JwtAuthFilter` before `UsernamePasswordAuthenticationFilter`. Permit `/api/auth/**`, `/api/products/**`, `/swagger-ui/**`, `/v3/api-docs/**`, `/h2-console/**`. Secure everything else. |
-
-**Step 3 — Service + Controller**
-
-| File | What to write |
-|------|--------------|
-| `modules/user/service/AuthService.java` | Fix package. `register()` → validate email unique, hash password with BCrypt, save User with role "USER", return AuthResponse. `login()` → authenticate, generate JWT, return AuthResponse. |
-| `modules/user/controller/AuthController.java` | Fix package. `POST /api/auth/register` → calls AuthService.register. `POST /api/auth/login` → calls AuthService.login. Both return `ResponseEntity<ApiResponse<AuthResponse>>`. |
-| `modules/user/service/UserService.java` | Fix package. `getMyProfile(email)` → find user by email, return UserResponse. `updateProfile(email, request)` → update name, save, return UserResponse. |
-| `modules/user/controller/UserController.java` | Fix package. `GET /api/users/me` → get email from SecurityContext, call UserService. `PUT /api/users/me` → same. Both `@PreAuthorize("isAuthenticated()")`. |
-
-**API this branch delivers:**
+### Frontend
 ```
-POST /api/auth/register   — public
-POST /api/auth/login      — public
-GET  /api/users/me        — JWT required
-PUT  /api/users/me        — JWT required
+src/api/axiosClient.js       — axios instance, auto-attaches Bearer token
+src/api/authApi.js           — register(), login()
+src/api/profileApi.js        — getCustomerDetails(), addAddress(), etc.
+src/context/AuthContext.jsx  — user state, login(), logout(), localStorage
+src/components/PrivateRoute.jsx
+src/components/Navbar.jsx    — auth-aware (shows Profile/Logout or Login/Register)
+src/routes/AppRoutes.jsx     — /profile, /cart, /checkout, /orders behind PrivateRoute; admin routes included
+src/pages/Login.jsx          — working form
+src/pages/Register.jsx       — working form
+src/pages/Profile.jsx        — customer details + address management
+src/pages/Home.jsx           — basic working page
+src/pages/Books.jsx          — book listing with search and pagination
+src/pages/admin/             — Dashboard, ProductManagement, OrderManagement, UserManagement
+```
+
+### Live API endpoints
+```
+POST /api/auth/register           public
+POST /api/auth/login              public
+GET  /api/users/me                JWT required
+PUT  /api/users/me                JWT required
+GET  /api/customers/details       JWT + USER role
+PUT  /api/customers/details       JWT + USER role
+POST /api/customers/addresses     JWT + USER role
+PUT  /api/customers/addresses/{id}       JWT + USER role
+DELETE /api/customers/addresses/{id}     JWT + USER role
+PUT  /api/customers/addresses/{id}/default  JWT + USER role
+GET  /api/products/**             public
+GET  /api/categories/**           public
+GET  /api/admin/**                JWT + ADMIN role
 ```
 
 ---
 
-## Rajveer — Tasks for feature/profile
+## What Still Needs to Be Done
 
-Start this after feature/auth is merged into develop.
+### Bhramika — feature/cart (IMMEDIATE — unblocks Karthik)
 
-| File | What to write |
-|------|--------------|
-| `modules/customer/repository/CustomerProfileRepository.java` | `Optional<CustomerProfile> findByUserId(Long userId)` |
-| `modules/customer/repository/AddressRepository.java` | `List<Address> findByCustomerProfileId(Long id)`, `Optional<Address> findByCustomerProfileIdAndIsDefaultTrue(Long id)` |
-| `modules/customer/dto/CustomerDetailsRequest.java` | Fields: phone, preferenceNotes |
-| `modules/customer/dto/CustomerDetailsResponse.java` | Fields: id, phone, preferenceNotes, List<AddressResponse> addresses |
-| `modules/customer/dto/AddressRequest.java` | Fields: line1, line2, city, state, pincode, isDefault |
-| `modules/customer/dto/AddressResponse.java` | Fields: id, line1, line2, city, state, pincode, isDefault |
-| `modules/customer/service/CustomerService.java` | getProfile, updateProfile, addAddress, deleteAddress, setDefaultAddress |
-| `modules/customer/controller/CustomerController.java` | GET/PUT /api/customers/me, POST/DELETE /api/customers/me/addresses |
-| `frontend/src/pages/Login.jsx` | Full login form |
-| `frontend/src/pages/Register.jsx` | Full register form |
-| `frontend/src/pages/Profile.jsx` | Profile + address management |
-| `frontend/src/context/AuthContext.jsx` | Auth state, token storage |
-| `frontend/src/api/axiosClient.js` | Axios instance + JWT interceptor |
-| `frontend/src/api/authApi.js` | login(), register() |
-| `frontend/src/components/PrivateRoute.jsx` | Redirect if not authenticated |
-| `frontend/src/components/Navbar.jsx` | Auth-aware — show user name + logout |
+Rebase onto develop first: `git rebase origin/develop`
 
----
+Already done on branch (NOT yet in develop):
+- ✅ CartRepository, CartItemRepository
+- ✅ CartResponse, AddToCartRequest, UpdateCartItemRequest
 
-## Bhramika — Tasks for feature/cart
-
-**Wait for feature/configuration + feature/auth to merge into develop, then rebase, then start.**
+Still TODO:
 
 | File | What to write |
 |------|--------------|
-| `modules/cart/repository/CartRepository.java` | `Optional<Cart> findByUserId(Long userId)` |
-| `modules/cart/repository/CartItemRepository.java` | `List<CartItem> findByCartId(Long cartId)`, `Optional<CartItem> findByCartIdAndProductId(Long cartId, Long productId)` |
-| `modules/cart/dto/CartResponse.java` | Fields: id, userId, List<CartItemResponse> items, BigDecimal totalAmount |
 | `modules/cart/dto/CartItemResponse.java` | Fields: id, productId, title, author, imageUrl, quantity, unitPrice, subtotal |
-| `modules/cart/dto/AddToCartRequest.java` | Fields: productId (@NotNull), quantity (@Min(1)) |
-| `modules/cart/dto/UpdateCartItemRequest.java` | Fields: quantity (@Min(1)) |
-| `modules/cart/service/CartService.java` | getCart (create if not exists), addToCart (check stock, merge qty if same product), updateItem, removeItem, clearCart, calculateTotal |
-| `modules/cart/controller/CartController.java` | GET /api/cart, POST /api/cart/items, PUT /api/cart/items/{id}, DELETE /api/cart/items/{id}, DELETE /api/cart — all @PreAuthorize("isAuthenticated()") |
-| `frontend/src/pages/Cart.jsx` | List items, update qty, remove, show total, checkout button |
+| `modules/cart/service/CartService.java` | getCart (auto-create), addToCart (check stock, merge if same product), updateItem, removeItem, clearCart |
+| `modules/cart/controller/CartController.java` | GET /api/cart, POST /api/cart/items, PUT /api/cart/items/{id}, DELETE /api/cart/items/{id}, DELETE /api/cart — all `@PreAuthorize("isAuthenticated()")` |
+| `frontend/src/pages/Cart.jsx` | List items, update qty, remove, show total, Checkout button |
+
+**Use axiosClient from `src/api/axiosClient.js` — it auto-sends the JWT token.**
+
+After PR merged → post in chat: `MERGED: cart — Karthik can now depend on CartRepository`
 
 ---
 
-## Bhramika — Tasks for feature/wishlist
+### Bhramika — feature/wishlist
+
+Already done on branch (NOT yet in develop):
+- ✅ WishlistRepository, WishlistItemRepository
+- ✅ WishlistResponse, WishlistItemResponse
+
+Still TODO:
 
 | File | What to write |
 |------|--------------|
-| `modules/wishlist/repository/WishlistRepository.java` | `Optional<Wishlist> findByUserId(Long userId)` |
-| `modules/wishlist/repository/WishlistItemRepository.java` | `List<WishlistItem> findByWishlistId(Long id)`, `Optional<WishlistItem> findByWishlistIdAndProductId(Long wishlistId, Long productId)`, `boolean existsByWishlistIdAndProductId(Long wishlistId, Long productId)` |
-| `modules/wishlist/dto/WishlistResponse.java` | Fields: id, userId, List<WishlistItemResponse> items |
-| `modules/wishlist/dto/WishlistItemResponse.java` | Fields: id, productId, title, author, imageUrl, price |
-| `modules/wishlist/service/WishlistService.java` | getWishlist (create if not exists), addItem (reject duplicates), removeItem |
-| `modules/wishlist/controller/WishlistController.java` | GET /api/wishlist, POST /api/wishlist/items, DELETE /api/wishlist/items/{id} |
-| `frontend/src/pages/Wishlist.jsx` | List items, move to cart button, remove button |
+| `modules/wishlist/service/WishlistService.java` | getWishlist (auto-create), addItem (reject duplicates), removeItem |
+| `modules/wishlist/controller/WishlistController.java` | GET /api/wishlist, POST /api/wishlist/items, DELETE /api/wishlist/items/{id} — all `@PreAuthorize("isAuthenticated()")` |
+| `frontend/src/pages/Wishlist.jsx` | List items, remove button, move-to-cart button |
 
 ---
 
-## Karthik — Tasks for feature/order
+### Karthik — feature/order
 
-**Wait for feature/auth + feature/cart to merge, then rebase, then start service layer.**
-*Repositories and DTOs can be started immediately after feature/configuration merges.*
+**Wait for feature/cart to merge before writing OrderService** (needs CartRepository to clear cart on order).
+
+Already done in develop:
+- ✅ OrderRepository, OrderItemRepository
+- ✅ OrderRequest, OrderResponse, OrderItemResponse, OrderStatusUpdateRequest
+
+Still TODO:
 
 | File | What to write |
 |------|--------------|
-| `modules/order/repository/OrderRepository.java` | `List<Order> findByUserIdOrderByCreatedAtDesc(Long userId)`, `Optional<Order> findByIdAndUserId(Long id, Long userId)`, `List<Order> findAllByOrderByCreatedAtDesc()` |
-| `modules/order/repository/OrderItemRepository.java` | `List<OrderItem> findByOrderId(Long orderId)` |
-| `modules/order/dto/OrderRequest.java` | Fields: deliveryAddressId (@NotNull) |
-| `modules/order/dto/OrderResponse.java` | Fields: id, status, totalAmount, createdAt, List<OrderItemResponse> items, AddressResponse deliveryAddress |
-| `modules/order/dto/OrderItemResponse.java` | Fields: id, productId, title, quantity, unitPrice, subtotal |
-| `modules/order/dto/OrderStatusUpdateRequest.java` | Fields: OrderStatus status |
-| `modules/order/service/OrderService.java` | placeOrder (convert cart items → order items, deduct stock, clear cart), getUserOrders, getOrderById, cancelOrder (PENDING only), admin: getAllOrders, updateOrderStatus |
-| `modules/order/controller/OrderController.java` | POST /api/orders, GET /api/orders, GET /api/orders/{id}, PUT /api/orders/{id}/cancel, admin endpoints |
-| `frontend/src/pages/Checkout.jsx` | Select delivery address, confirm order |
-| `frontend/src/pages/Orders.jsx` | Order history, status, cancel button |
+| `modules/order/service/OrderService.java` | placeOrder (pull from cart → create order items → deduct stock → clear cart), getUserOrders, getOrderById, cancelOrder (PENDING only), admin: getAllOrders, updateOrderStatus |
+| `modules/order/controller/OrderController.java` | POST /api/orders, GET /api/orders, GET /api/orders/{id}, PUT /api/orders/{id}/cancel — user endpoints `@PreAuthorize("isAuthenticated()")`. Admin endpoints `@PreAuthorize("hasRole('ADMIN')")` |
+| `frontend/src/pages/Checkout.jsx` | Show cart summary, select delivery address from CustomerProfile, confirm order button |
+| `frontend/src/pages/Orders.jsx` | Order history list, status badge, cancel button for PENDING orders |
+
+**Key dependency:** OrderService.placeOrder must call CartRepository to clear the cart after order is placed. Import `CartRepository` from `modules/cart/repository/CartRepository.java`.
 
 ---
 
-## Karthik — Tasks for feature/feedback
+### Karthik — feature/feedback
+
+Already done in develop:
+- ✅ FeedbackRepository, FeedbackRequest, FeedbackResponse, RatingSummary
+
+Still TODO:
 
 | File | What to write |
 |------|--------------|
-| `modules/feedback/repository/FeedbackRepository.java` | `findByProductIdOrderByCreatedAtDesc`, `findByUserId`, `findByUserIdAndProductId`, `@Query` average rating, `countByProductId` |
-| `modules/feedback/dto/FeedbackRequest.java` | Fields: productId, rating (@Min(1) @Max(5)), comment |
-| `modules/feedback/dto/FeedbackResponse.java` | Fields: id, userId, userName, productId, rating, comment, createdAt |
-| `modules/feedback/dto/RatingSummary.java` | Fields: averageRating, totalCount, Map<Integer, Long> starDistribution |
-| `modules/feedback/service/FeedbackService.java` | submitFeedback (one per user per product), updateFeedback, deleteFeedback, getProductFeedback, getRatingSummary |
-| `modules/feedback/controller/FeedbackController.java` | POST/PUT/DELETE /api/feedback, GET /api/feedback/product/{id}, GET /api/feedback/product/{id}/summary |
-| `frontend/src/pages/BookDetails.jsx` | Product info, rating display, feedback list, feedback form, add to cart, add to wishlist |
+| `modules/feedback/service/FeedbackService.java` | submitFeedback (one review per user per product — check with findByUserIdAndProductId), getProductFeedback, getRatingSummary |
+| `modules/feedback/controller/FeedbackController.java` | POST /api/feedback `@PreAuthorize("isAuthenticated()")`, GET /api/feedback/product/{id} public, GET /api/feedback/product/{id}/summary public |
+| `frontend/src/pages/BookDetails.jsx` | Product info, average rating display, feedback list, submit review form (if logged in), add to cart button, add to wishlist button |
 
 ---
 
-## Devraj — Tasks for feature/admin and feature/dashboard
+### Devraj — feature/dashboard
 
-Start after feature/configuration and feature/product are merged.
-
-| File | What to write |
-|------|--------------|
-| `modules/admin/dto/DashboardResponse.java` | totalUsers, totalProducts, totalOrders, totalRevenue, lowStockCount |
-| `modules/admin/dto/UserListResponse.java` | id, name, email, role, createdAt |
-| `modules/admin/service/AdminService.java` | getDashboardStats, getAllUsers, getLowStockProducts |
-| `modules/admin/controller/AdminController.java` | GET /api/admin/dashboard, /users, /products/low-stock — all @PreAuthorize("hasRole('ADMIN')") |
-| `frontend/src/pages/Home.jsx` | Featured books, category links |
-| `frontend/src/pages/Books.jsx` | Book listing, search bar, category filter, pagination |
-| Frontend admin pages | Dashboard, ProductManagement, OrderManagement, UserManagement |
+Home.jsx and Books.jsx are already updated in develop (came in via admin branch). Check if any dashboard polish is still needed.
 
 ---
 
-## Git Workflow — Every Session
+## Remaining Merge Order
 
-```bash
-# Always start here
-git fetch origin
-git checkout feature/<your-branch>
-git rebase origin/develop          # get everyone's latest merged work
-
-# Work + test one file at a time
-
-# Commit after each working file
-git add <specific file path>
-git commit -m "feat(module): what this file does"
-
-# Push regularly (at least at end of each session)
-git push origin feature/<your-branch>
-
-# When your entire branch task is done — open PR into develop on GitHub
-# Post in group chat: PR OPEN — [name] — [link]
 ```
+5. Bhramika: PR feature/cart → develop
+   Chat: "MERGED: cart — Karthik start OrderService now"
+
+6. Karthik: implement OrderService + OrderController + Checkout.jsx + Orders.jsx → PR → develop
+   Karthik: implement FeedbackService + FeedbackController + BookDetails.jsx → PR → develop
+
+7. Bhramika: PR feature/wishlist → develop
+   Chat: "MERGED: wishlist"
+
+8. All: rebase all remaining branches onto develop, integration test → develop → main
+```
+
+---
+
+## Rajveer — ALL TASKS COMPLETE ✅
+
+Both branches fully implemented and merged:
+- `feature/auth` — PR #1 merged ✅
+- `feature/profile` — PR #4 merged ✅
+
+No further backend or frontend tasks assigned to Rajveer.
 
 ---
 
@@ -294,9 +239,36 @@ git push origin feature/<your-branch>
 | `modules/product/**` + `modules/admin/**` | Devraj |
 | `modules/cart/**` + `modules/wishlist/**` | Bhramika |
 | `modules/order/**` + `modules/feedback/**` | Karthik |
-| `frontend/src/context/` + `frontend/src/api/` | Rajveer creates first |
+| `frontend/src/context/` + `frontend/src/api/` | Rajveer owns — others can add new api files |
 | `frontend/src/routes/AppRoutes.jsx` | Coordinated — each person adds their own routes |
-| `frontend/src/components/Navbar.jsx` | Rajveer — others ask before modifying |
+| `frontend/src/components/Navbar.jsx` | Rajveer owns — others ask before modifying |
+
+---
+
+## Git Workflow — Every Session
+
+```bash
+# Always start here
+git fetch origin
+git checkout feature/<your-branch>
+git rebase origin/develop
+
+# Commit after each file
+git add <specific-file>
+git commit -m "[YourName]: what this file does"
+
+# Push at end of session
+git push origin feature/<your-branch>
+
+# When branch is complete — open PR on GitHub into develop
+# Post in group chat: PR OPEN — [name] — [link]
+```
+
+**Commit message format by person:**
+- Rajveer: `[Rajveer]: description`
+- Devraj: `[Devraj]: description`
+- Bhramika: `[Brahmika] Added: description`
+- Karthik: `[Kartikeya] Added: description`
 
 ---
 
@@ -306,24 +278,16 @@ git push origin feature/<your-branch>
 ```
 I am Rajveer on the BookStore team app.
 Repo: c:\Users\Rajveer Singh\Bookstore_teamApp
-My branches: feature/auth (then feature/profile)
-My ownership: security layer (JwtUtil, JwtAuthFilter, UserDetailsServiceImpl, SecurityConfig),
-user module (modules/user/**), customer module (modules/customer/**),
-frontend auth pages, AuthContext, PrivateRoute, axiosClient.
-
-Do first:
-1. Read TEAM_PLAN.md
-2. git log origin/develop --oneline -10
-3. Read only files for my current task. Do not touch files outside my ownership.
-Current task: [FILL IN]
+All my tasks are COMPLETE (feature/auth PR #1 merged, feature/profile PR #4 merged).
+Read TEAM_PLAN.md and git log origin/develop --oneline -10 to confirm current state.
 ```
 
 **Devraj:**
 ```
 I am Devraj on the BookStore team app.
-My branches: feature/configuration, feature/product, feature/admin, feature/dashboard
-My ownership: common utilities, exceptions, entities (read-only), product module,
-admin module, frontend Home + Books + admin pages, Docker, pom.xml.
+Repo: [repo path]
+My branches: feature/dashboard (check if anything remains — Home.jsx + Books.jsx already in develop)
+My ownership: common utilities, exceptions, entities, product module, admin module, pom.xml, config.
 
 Do first:
 1. Read TEAM_PLAN.md
@@ -335,18 +299,15 @@ Current task: [FILL IN]
 **Bhramika:**
 ```
 I am Bhramika on the BookStore team app.
-My branches: feature/cart, feature/wishlist
-My ownership: cart module (modules/cart/**), wishlist module (modules/wishlist/**),
-frontend Cart page, Wishlist page.
+Repo: [repo path]
+My branches: feature/cart (IN PROGRESS), feature/wishlist (IN PROGRESS)
+My ownership: modules/cart/**, modules/wishlist/**, frontend Cart.jsx, Wishlist.jsx
 
 Do first:
 1. Read TEAM_PLAN.md
-2. git log origin/develop --oneline -10
-3. Before writing service layer, verify these are in develop:
-   - modules/user/repository/UserRepository.java (Rajveer)
-   - modules/product/repository/ProductRepository.java (Devraj)
-   - common/ApiResponse.java (Devraj)
-4. Read only files for my current task.
+2. git fetch origin && git checkout feature/cart && git rebase origin/develop
+3. Auth is in develop — use axiosClient from src/api/axiosClient.js (auto-sends JWT)
+4. CartRepository and DTOs are already on this branch. Next: CartService → CartController → Cart.jsx
 Never touch security, user, product, order, entity, or config files.
 Current task: [FILL IN]
 ```
@@ -354,19 +315,15 @@ Current task: [FILL IN]
 **Karthik:**
 ```
 I am Karthik on the BookStore team app.
-My branches: feature/order, feature/feedback
-My ownership: order module (modules/order/**), feedback module (modules/feedback/**),
-frontend Checkout, Orders, BookDetails pages.
+Repo: [repo path]
+My branches: feature/order (IN PROGRESS), feature/feedback (IN PROGRESS)
+My ownership: modules/order/**, modules/feedback/**, frontend Checkout.jsx, Orders.jsx, BookDetails.jsx
 
 Do first:
 1. Read TEAM_PLAN.md
-2. git log origin/develop --oneline -10
-3. Before writing OrderService, verify these are in develop:
-   - security/SecurityConfig.java (Rajveer — feature/auth merged)
-   - modules/product/repository/ProductRepository.java (Devraj)
-   - modules/cart/repository/CartRepository.java (Bhramika — feature/cart merged)
-   - common/ApiResponse.java (Devraj)
-4. Read only files for my current task.
+2. git fetch origin && git checkout feature/order && git rebase origin/develop
+3. Repositories + DTOs are already in develop. Next: OrderService (needs feature/cart merged first) → OrderController → frontend pages
+4. For FeedbackService — can start now, no cart dependency
 Never touch security, user, product, cart, entity, or config files.
 Current task: [FILL IN]
 ```
