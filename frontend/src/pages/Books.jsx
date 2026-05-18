@@ -1,18 +1,26 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 const Books = () => {
   const [books, setBooks] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(0)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const categoryId = searchParams.get('category')
 
   useEffect(() => {
     const fetchBooks = async () => {
       setLoading(true)
       try {
-        const url = search
-          ? `/api/products/search?keyword=${search}&page=${page}`
-          : `/api/products?page=${page}&size=10`
+        let url
+        if (search) {
+          url = `/api/products/search?keyword=${search}&page=${page}`
+        } else if (categoryId) {
+          url = `/api/products/category/${categoryId}?page=${page}&size=10`
+        } else {
+          url = `/api/products?page=${page}&size=10`
+        }
         const res = await fetch(url)
         const json = await res.json()
         setBooks(json.data?.content || [])
@@ -23,19 +31,35 @@ const Books = () => {
       }
     }
     fetchBooks()
-  }, [search, page])
+  }, [search, page, categoryId])
+
+  const clearFilters = () => {
+    setSearch('')
+    setSearchParams({})
+    setPage(0)
+  }
 
   return (
     <div className="container">
       <h1>Books</h1>
 
-      <input
-        type="text"
-        placeholder="Search by title or author..."
-        value={search}
-        onChange={(e) => { setSearch(e.target.value); setPage(0) }}
-        style={{ padding: '0.5rem', width: '100%', maxWidth: '400px', marginBottom: '1.5rem' }}
-      />
+      <div style={{ marginBottom: '1.5rem' }}>
+        <input
+          type="text"
+          placeholder="Search by title or author..."
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(0) }}
+          style={{ padding: '0.5rem', width: '100%', maxWidth: '400px' }}
+        />
+        {(categoryId || search) && (
+          <button 
+            onClick={clearFilters}
+            style={{ marginLeft: '1rem', padding: '0.5rem 1rem', cursor: 'pointer' }}
+          >
+            Clear Filters
+          </button>
+        )}
+      </div>
 
       {loading ? (
         <p>Loading...</p>
