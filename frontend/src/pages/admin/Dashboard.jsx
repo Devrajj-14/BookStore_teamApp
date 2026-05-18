@@ -1,9 +1,68 @@
 import { useState, useEffect } from 'react'
 
-const StatCard = ({ label, value }) => (
-  <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '1.5rem', minWidth: '160px' }}>
-    <p style={{ color: '#666', margin: 0 }}>{label}</p>
-    <h2 style={{ margin: '0.5rem 0 0' }}>{value ?? '—'}</h2>
+const StatCard = ({ icon, label, value, color }) => (
+  <div style={{
+    background: 'white',
+    borderRadius: '8px',
+    padding: '1.5rem',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+    border: '1px solid #e5e7eb',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
+    minWidth: '200px'
+  }}>
+    <div style={{
+      fontSize: '2rem',
+      width: '50px',
+      height: '50px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: '8px',
+      background: color || '#f3f4f6'
+    }}>
+      {icon}
+    </div>
+    <div>
+      <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: 0 }}>{label}</p>
+      <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.75rem', fontWeight: '700', color: '#1a1a1a' }}>
+        {value ?? '—'}
+      </h2>
+    </div>
+  </div>
+)
+
+const QuickActionCard = ({ icon, label, onClick }) => (
+  <div 
+    onClick={onClick}
+    style={{
+      background: 'white',
+      borderRadius: '8px',
+      padding: '1.5rem',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      border: '1px solid #e5e7eb',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '0.75rem',
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+      minWidth: '140px'
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)'
+      e.currentTarget.style.transform = 'translateY(-2px)'
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+      e.currentTarget.style.transform = 'translateY(0)'
+    }}
+  >
+    <div style={{ fontSize: '2.5rem' }}>{icon}</div>
+    <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '500', color: '#374151', textAlign: 'center' }}>
+      {label}
+    </p>
   </div>
 )
 
@@ -14,7 +73,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch('/api/admin/dashboard')
+        const res = await fetch('http://localhost:8080/api/admin/dashboard')
         const json = await res.json()
         setStats(json.data)
       } catch (err) {
@@ -26,47 +85,94 @@ const Dashboard = () => {
     fetchStats()
   }, [])
 
-  if (loading) return <div className="container"><p>Loading dashboard...</p></div>
+  if (loading) return (
+    <div className="container">
+      <p style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>Loading dashboard...</p>
+    </div>
+  )
 
   return (
     <div className="container">
-      <h1>Admin Dashboard</h1>
+      <h1>Dashboard</h1>
+      <p className="subtitle">Welcome back, Admin! Here's what's happening</p>
 
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
-        <StatCard label="Total Users" value={stats?.totalUsers} />
-        <StatCard label="Total Products" value={stats?.totalProducts} />
-        <StatCard label="Total Orders" value={stats?.totalOrders} />
-        <StatCard label="Pending Orders" value={stats?.pendingOrders} />
-        <StatCard label="Low Stock Products" value={stats?.lowStockProducts} />
-        <StatCard label="Total Revenue" value={stats?.totalRevenue ? `₹${stats.totalRevenue}` : '₹0'} />
+      {/* Stats Grid */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+        gap: '1.5rem', 
+        marginBottom: '3rem' 
+      }}>
+        <StatCard 
+          icon="👥" 
+          label="Total Users" 
+          value={stats?.totalUsers} 
+          color="#dbeafe"
+        />
+        <StatCard 
+          icon="📚" 
+          label="Total Books" 
+          value={stats?.totalProducts} 
+          color="#fce7f3"
+        />
+        <StatCard 
+          icon="📦" 
+          label="Total Orders" 
+          value={stats?.totalOrders} 
+          color="#e0e7ff"
+        />
+        <StatCard 
+          icon="💰" 
+          label="Total Revenue" 
+          value={stats?.totalRevenue ? `₹${stats.totalRevenue}` : '₹0'} 
+          color="#fef3c7"
+        />
+        <StatCard 
+          icon="⏳" 
+          label="Pending Orders" 
+          value={stats?.pendingOrders} 
+          color="#fed7aa"
+        />
+        <StatCard 
+          icon="✅" 
+          label="Delivered Orders" 
+          value={stats?.ordersByStatus?.DELIVERED || 0} 
+          color="#d1fae5"
+        />
       </div>
 
-      {stats?.ordersByStatus && (
-        <div style={{ marginTop: '2rem' }}>
-          <h2>Orders by Status</h2>
-          <table style={{ borderCollapse: 'collapse', width: '100%', maxWidth: '400px' }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'left', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Status</th>
-                <th style={{ textAlign: 'right', padding: '0.5rem', borderBottom: '1px solid #ddd' }}>Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(stats.ordersByStatus).map(([status, count]) => (
-                <tr key={status}>
-                  <td style={{ padding: '0.5rem' }}>{status}</td>
-                  <td style={{ padding: '0.5rem', textAlign: 'right' }}>{count}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Quick Actions */}
+      <div style={{ marginTop: '2rem' }}>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          ⚡ Quick Actions
+        </h2>
+        <div style={{ 
+          display: 'flex', 
+          gap: '1.5rem', 
+          marginTop: '1rem',
+          flexWrap: 'wrap'
+        }}>
+          <QuickActionCard 
+            icon="📖" 
+            label="Add New Book" 
+            onClick={() => window.location.href = '/admin/products'}
+          />
+          <QuickActionCard 
+            icon="📋" 
+            label="View All Orders" 
+            onClick={() => window.location.href = '/admin/orders'}
+          />
+          <QuickActionCard 
+            icon="👥" 
+            label="Manage Users" 
+            onClick={() => window.location.href = '/admin/users'}
+          />
+          <QuickActionCard 
+            icon="💳" 
+            label="View Payments" 
+            onClick={() => alert('Payments feature coming soon!')}
+          />
         </div>
-      )}
-
-      <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-        <a href="/admin/products"><button style={{ padding: '0.75rem 1.5rem', cursor: 'pointer' }}>Manage Products</button></a>
-        <a href="/admin/orders"><button style={{ padding: '0.75rem 1.5rem', cursor: 'pointer' }}>Manage Orders</button></a>
-        <a href="/admin/users"><button style={{ padding: '0.75rem 1.5rem', cursor: 'pointer' }}>Manage Users</button></a>
       </div>
     </div>
   )
