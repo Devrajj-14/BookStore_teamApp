@@ -1,12 +1,7 @@
 package com.bookstore.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
-/**
- * Represents the wishlist header belonging to a user
- */
-@Data
 @Entity
 @Table(name = "wishlists")
 public class Wishlist {
@@ -18,4 +13,10 @@ public class Wishlist {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 }

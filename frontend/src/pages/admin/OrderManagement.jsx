@@ -11,8 +11,8 @@ const OrderManagement = () => {
     setLoading(true)
     try {
       const url = filterStatus
-        ? `/api/orders/all?status=${filterStatus}`
-        : '/api/orders/all'
+        ? `/api/orders/admin?status=${filterStatus}`
+        : '/api/orders/admin'
       const res = await fetch(url)
       const json = await res.json()
       setOrders(json.data || [])
@@ -27,7 +27,7 @@ const OrderManagement = () => {
 
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
-      await fetch(`/api/orders/${orderId}/status`, {
+      await fetch(`/api/orders/admin/${orderId}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
