@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { getProductById } from '../api/productApi'
 import { addToCart } from '../api/cartApi'
 import { getProductFeedback, getRatingSummary, submitFeedback, updateFeedback, deleteFeedback } from '../api/feedbackApi'
+import { addToWishlist, checkInWishlist } from '../api/wishlistApi'
 
 // Star display helper
 const Stars = ({ rating, size = '1rem' }) => {
@@ -29,6 +30,11 @@ const BookDetails = () => {
   const [cartMsg, setCartMsg] = useState('')
   const [addingToCart, setAddingToCart] = useState(false)
 
+  // Wishlist
+  const [inWishlist, setInWishlist] = useState(false)
+  const [wishlistMsg, setWishlistMsg] = useState('')
+  const [wishlistLoading, setWishlistLoading] = useState(false)
+
   // Review form
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -53,6 +59,16 @@ const BookDetails = () => {
       setBook(bookRes.data.data)
       setReviews(reviewsRes.data.data || [])
       setSummary(summaryRes.data.data)
+
+      // Check wishlist status if logged in
+      if (user) {
+        try {
+          const wishlistRes = await checkInWishlist(id)
+          setInWishlist(wishlistRes.data.data)
+        } catch {
+          setInWishlist(false)
+        }
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load book details')
     } finally {
@@ -71,6 +87,21 @@ const BookDetails = () => {
       setCartMsg(err.response?.data?.message || 'Failed to add to cart')
     } finally {
       setAddingToCart(false)
+    }
+  }
+
+  const handleWishlist = async () => {
+    if (!user) { navigate('/login'); return }
+    setWishlistLoading(true)
+    setWishlistMsg('')
+    try {
+      await addToWishlist(book.id)
+      setInWishlist(true)
+      setWishlistMsg('Added to wishlist!')
+    } catch (err) {
+      setWishlistMsg(err.response?.data?.message || 'Failed to add to wishlist')
+    } finally {
+      setWishlistLoading(false)
     }
   }
 
@@ -140,17 +171,35 @@ const BookDetails = () => {
           </p>
 
           {cartMsg && <p style={styles.cartMsg}>{cartMsg}</p>}
+          {wishlistMsg && (
+            <p style={{ ...styles.cartMsg, color: inWishlist ? '#27ae60' : '#e74c3c' }}>
+              {wishlistMsg}
+            </p>
+          )}
 
-          <button
-            style={{
-              ...styles.btnPrimary,
-              opacity: book.stockQuantity === 0 || addingToCart ? 0.6 : 1,
-            }}
-            onClick={handleAddToCart}
-            disabled={book.stockQuantity === 0 || addingToCart}
-          >
-            {addingToCart ? 'Adding...' : 'Add to Cart'}
-          </button>
+          <div style={styles.btnGroup}>
+            <button
+              style={{
+                ...styles.btnPrimary,
+                opacity: book.stockQuantity === 0 || addingToCart ? 0.6 : 1,
+              }}
+              onClick={handleAddToCart}
+              disabled={book.stockQuantity === 0 || addingToCart}
+            >
+              {addingToCart ? 'Adding...' : 'Add to Cart'}
+            </button>
+
+            <button
+              style={{
+                ...styles.btnWishlist,
+                opacity: inWishlist || wishlistLoading ? 0.6 : 1,
+              }}
+              onClick={handleWishlist}
+              disabled={inWishlist || wishlistLoading}
+            >
+              {inWishlist ? '♥ In Wishlist' : wishlistLoading ? 'Adding...' : '♡ Add to Wishlist'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -341,6 +390,11 @@ const styles = {
     padding: '0.75rem 1.5rem', background: '#333', color: '#fff',
     border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1rem',
   },
+  btnWishlist: {
+    padding: '0.75rem 1.5rem', background: 'transparent', color: '#e74c3c',
+    border: '1px solid #e74c3c', borderRadius: '4px', cursor: 'pointer', fontSize: '1rem',
+  },
+  btnGroup: { display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.5rem' },
   btnSecondary: {
     padding: '0.6rem 1.2rem', background: 'transparent', color: '#333',
     border: '1px solid #333', borderRadius: '4px', cursor: 'pointer', fontSize: '0.9rem',
