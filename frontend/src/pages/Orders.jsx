@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getMyOrders } from '../api/orderApi'
 
@@ -17,11 +17,13 @@ const statusColors = {
 const Orders = () => {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [expandedId, setExpandedId] = useState(null)
+  const [showBanner, setShowBanner] = useState(location.state?.orderPlaced === true)
 
   useEffect(() => {
     if (!user) {
@@ -30,6 +32,14 @@ const Orders = () => {
     }
     fetchOrders()
   }, [user])
+
+  // Auto-dismiss the banner after 4 seconds
+  useEffect(() => {
+    if (showBanner) {
+      const timer = setTimeout(() => setShowBanner(false), 4000)
+      return () => clearTimeout(timer)
+    }
+  }, [showBanner])
 
   const fetchOrders = async () => {
     setLoading(true)
@@ -59,6 +69,18 @@ const Orders = () => {
   return (
     <div style={styles.wrapper}>
       <h2 style={styles.title}>My Orders</h2>
+
+      {/* Order Placed Banner */}
+      {showBanner && (
+        <div style={styles.banner}>
+          <span style={styles.bannerIcon}>✓</span>
+          <div>
+            <p style={styles.bannerTitle}>Order Placed!</p>
+            <p style={styles.bannerSub}>Your order has been placed successfully. We'll get it to you soon.</p>
+          </div>
+          <button style={styles.bannerClose} onClick={() => setShowBanner(false)}>✕</button>
+        </div>
+      )}
 
       {error && <p style={styles.error}>{error}</p>}
 
@@ -190,6 +212,25 @@ const styles = {
     padding: '0.75rem 1.5rem', background: '#333', color: '#fff',
     border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1rem',
     marginTop: '1rem',
+  },
+  banner: {
+    display: 'flex', alignItems: 'center', gap: '1rem',
+    background: '#d4edda', border: '1px solid #c3e6cb', borderRadius: '8px',
+    padding: '1rem 1.25rem', marginBottom: '1.5rem',
+    animation: 'fadeIn 0.3s ease',
+  },
+  bannerIcon: {
+    width: '36px', height: '36px', borderRadius: '50%',
+    background: '#28a745', color: '#fff', display: 'flex',
+    alignItems: 'center', justifyContent: 'center',
+    fontSize: '1.1rem', fontWeight: '700', flexShrink: 0,
+    lineHeight: '36px', textAlign: 'center',
+  },
+  bannerTitle: { margin: '0 0 0.2rem 0', fontWeight: '700', fontSize: '1rem', color: '#155724' },
+  bannerSub: { margin: 0, fontSize: '0.85rem', color: '#155724' },
+  bannerClose: {
+    marginLeft: 'auto', background: 'none', border: 'none',
+    cursor: 'pointer', fontSize: '1rem', color: '#155724', flexShrink: 0,
   },
 }
 

@@ -82,7 +82,7 @@ const Checkout = () => {
     try {
       await placeOrder({ deliveryAddressId: selectedAddressId, items })
       await clearCart()
-      navigate('/orders')
+      navigate('/orders', { state: { orderPlaced: true } })
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to place order')
     } finally {

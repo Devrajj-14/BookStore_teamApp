@@ -44,6 +44,14 @@ const Navbar = () => {
                   🛒 Cart
                 </Link>
               </li>
+              <li>
+                <Link 
+                  to="/orders" 
+                  style={{...styles.link, ...(isActive('/orders') ? styles.activeLink : {})}}
+                >
+                  📦 Orders
+                </Link>
+              </li>
             </>
           )}
           {user?.role === 'ADMIN' && (
