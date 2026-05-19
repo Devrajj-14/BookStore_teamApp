@@ -59,6 +59,7 @@ public class WishlistService {
         });
     }
 
+    // --- Build WishlistResponse using MapStruct ---
     private WishlistResponse buildWishlistResponse(Wishlist wishlist) {
         List<WishlistItem> items = wishlistItemRepository.findByWishlistId(wishlist.getId());
         List<WishlistItemResponse> itemResponses = wishlistMapper.toWishlistItemResponseList(items);

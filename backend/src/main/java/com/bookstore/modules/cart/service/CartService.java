@@ -65,6 +65,7 @@ public class CartService {
         });
     }
 
+    // --- Build CartResponse using MapStruct ---
     private CartResponse buildCartResponse(Cart cart) {
         List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
         List<CartItemResponse> itemResponses = cartMapper.toCartItemResponseList(items);
@@ -73,7 +74,7 @@ public class CartService {
                 .map(CartItemResponse::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        CartResponse response = cartMapper.toCartResponse(cart);
+        CartResponse response = cartMapper.toCartResponse(cart, items);
         response.setItems(itemResponses);
         response.setTotalAmount(total);
         return response;
