@@ -10,6 +10,7 @@ import com.bookstore.modules.product.repository.ProductRepository;
 import com.bookstore.modules.user.repository.UserRepository;
 import com.bookstore.modules.wishlist.dto.WishlistItemResponse;
 import com.bookstore.modules.wishlist.dto.WishlistResponse;
+import com.bookstore.modules.wishlist.mapper.WishlistMapper;
 import com.bookstore.modules.wishlist.repository.WishlistItemRepository;
 import com.bookstore.modules.wishlist.repository.WishlistRepository;
 import org.springframework.security.core.Authentication;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class WishlistService {
@@ -27,15 +27,18 @@ public class WishlistService {
     private final WishlistItemRepository wishlistItemRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final WishlistMapper wishlistMapper;
 
     public WishlistService(WishlistRepository wishlistRepository,
                            WishlistItemRepository wishlistItemRepository,
                            ProductRepository productRepository,
-                           UserRepository userRepository) {
+                           UserRepository userRepository,
+                           WishlistMapper wishlistMapper) {
         this.wishlistRepository = wishlistRepository;
         this.wishlistItemRepository = wishlistItemRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.wishlistMapper = wishlistMapper;
     }
 
     // --- Get current logged-in user's ID via SecurityContext ---
@@ -58,25 +61,12 @@ public class WishlistService {
         });
     }
 
-    // --- Build WishlistResponse from Wishlist entity ---
+    // --- Build WishlistResponse using MapStruct ---
     private WishlistResponse buildWishlistResponse(Wishlist wishlist) {
         List<WishlistItem> items = wishlistItemRepository.findByWishlistId(wishlist.getId());
+        List<WishlistItemResponse> itemResponses = wishlistMapper.toWishlistItemResponseList(items);
 
-        List<WishlistItemResponse> itemResponses = items.stream().map(item -> {
-            WishlistItemResponse r = new WishlistItemResponse();
-            r.setId(item.getId());
-            r.setProductId(item.getProduct().getId());
-            r.setProductTitle(item.getProduct().getTitle());
-            r.setProductAuthor(item.getProduct().getAuthor());
-            r.setProductImage(item.getProduct().getImageUrl());
-            r.setProductPrice(item.getProduct().getPrice());
-            r.setInStock(item.getProduct().getStockQuantity() > 0);
-            return r;
-        }).collect(Collectors.toList());
-
-        WishlistResponse response = new WishlistResponse();
-        response.setId(wishlist.getId());
-        response.setUserId(wishlist.getUser().getId());
+        WishlistResponse response = wishlistMapper.toWishlistResponse(wishlist);
         response.setItems(itemResponses);
         response.setTotalItems(itemResponses.size());
         return response;
