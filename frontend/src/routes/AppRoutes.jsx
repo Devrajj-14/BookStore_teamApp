@@ -17,6 +17,7 @@ import ProductManagement from '../pages/admin/ProductManagement'
 import OrderManagement from '../pages/admin/OrderManagement'
 import UserManagement from '../pages/admin/UserManagement'
 import PrivateRoute from '../components/PrivateRoute'
+import AdminRoute from '../components/AdminRoute'
 
 const AppRoutes = () => {
   return (
@@ -37,11 +38,11 @@ const AppRoutes = () => {
         <Route path="orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
         <Route path="profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
 
-        {/* Admin routes */}
-        <Route path="admin/dashboard" element={<Dashboard />} />
-        <Route path="admin/products" element={<ProductManagement />} />
-        <Route path="admin/orders" element={<OrderManagement />} />
-        <Route path="admin/users" element={<UserManagement />} />
+        {/* Admin routes — requires ADMIN role */}
+        <Route path="admin/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
+        <Route path="admin/products" element={<AdminRoute><ProductManagement /></AdminRoute>} />
+        <Route path="admin/orders" element={<AdminRoute><OrderManagement /></AdminRoute>} />
+        <Route path="admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
 
         <Route path="*" element={<NotFound />} />
       </Route>

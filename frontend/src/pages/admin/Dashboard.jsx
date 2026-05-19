@@ -1,181 +1,89 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
+import axiosClient from '../../api/axiosClient'
 
 const StatCard = ({ icon, label, value, color }) => (
-  <div style={{
-    background: 'white',
-    borderRadius: '8px',
-    padding: '1.5rem',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    border: '1px solid #e5e7eb',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-    minWidth: '200px'
-  }}>
-    <div style={{
-      fontSize: '2rem',
-      width: '50px',
-      height: '50px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: '8px',
-      background: color || '#f3f4f6'
-    }}>
-      {icon}
-    </div>
+  <div style={styles.statCard}>
+    <div style={{ ...styles.statIcon, background: color }}>{icon}</div>
     <div>
-      <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: 0 }}>{label}</p>
-      <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.75rem', fontWeight: '700', color: '#1a1a1a' }}>
-        {value ?? '—'}
-      </h2>
+      <p style={styles.statLabel}>{label}</p>
+      <h2 style={styles.statValue}>{value ?? '—'}</h2>
     </div>
-  </div>
-)
-
-const QuickActionCard = ({ icon, label, onClick }) => (
-  <div 
-    onClick={onClick}
-    style={{
-      background: 'white',
-      borderRadius: '8px',
-      padding: '1.5rem',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-      border: '1px solid #e5e7eb',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '0.75rem',
-      cursor: 'pointer',
-      transition: 'all 0.2s',
-      minWidth: '140px'
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)'
-      e.currentTarget.style.transform = 'translateY(-2px)'
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
-      e.currentTarget.style.transform = 'translateY(0)'
-    }}
-  >
-    <div style={{ fontSize: '2.5rem' }}>{icon}</div>
-    <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '500', color: '#374151', textAlign: 'center' }}>
-      {label}
-    </p>
   </div>
 )
 
 const Dashboard = () => {
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await fetch('http://localhost:8080/api/admin/dashboard')
-        const json = await res.json()
-        setStats(json.data)
-      } catch (err) {
-        console.error('Failed to fetch dashboard stats:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchStats()
+    axiosClient.get('/api/admin/dashboard')
+      .then(res => setStats(res.data.data))
+      .catch(() => setError('Failed to load dashboard stats'))
+      .finally(() => setLoading(false))
   }, [])
 
-  if (loading) return (
-    <div className="container">
-      <p style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>Loading dashboard...</p>
-    </div>
-  )
+  if (loading) return <div style={styles.center}>Loading dashboard...</div>
 
   return (
-    <div className="container">
-      <h1>Dashboard</h1>
-      <p className="subtitle">Welcome back, Admin! Here's what's happening</p>
+    <div style={styles.wrapper}>
+      <div style={styles.header}>
+        <div>
+          <h1 style={styles.title}>Admin Dashboard</h1>
+          <p style={styles.subtitle}>Welcome back, {user?.name}! Here's what's happening.</p>
+        </div>
+      </div>
+
+      {error && <p style={styles.error}>{error}</p>}
 
       {/* Stats Grid */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-        gap: '1.5rem', 
-        marginBottom: '3rem' 
-      }}>
-        <StatCard 
-          icon="👥" 
-          label="Total Users" 
-          value={stats?.totalUsers} 
-          color="#dbeafe"
-        />
-        <StatCard 
-          icon="📚" 
-          label="Total Books" 
-          value={stats?.totalProducts} 
-          color="#fce7f3"
-        />
-        <StatCard 
-          icon="📦" 
-          label="Total Orders" 
-          value={stats?.totalOrders} 
-          color="#e0e7ff"
-        />
-        <StatCard 
-          icon="💰" 
-          label="Total Revenue" 
-          value={stats?.totalRevenue ? `₹${stats.totalRevenue}` : '₹0'} 
-          color="#fef3c7"
-        />
-        <StatCard 
-          icon="⏳" 
-          label="Pending Orders" 
-          value={stats?.pendingOrders} 
-          color="#fed7aa"
-        />
-        <StatCard 
-          icon="✅" 
-          label="Delivered Orders" 
-          value={stats?.ordersByStatus?.DELIVERED || 0} 
-          color="#d1fae5"
-        />
+      <div style={styles.statsGrid}>
+        <StatCard icon="👥" label="Total Users"      value={stats?.totalUsers}                                    color="#dbeafe" />
+        <StatCard icon="📚" label="Total Books"      value={stats?.totalProducts}                                 color="#fce7f3" />
+        <StatCard icon="📦" label="Total Orders"     value={stats?.totalOrders}                                   color="#e0e7ff" />
+        <StatCard icon="💰" label="Revenue"          value={stats?.totalRevenue ? `₹${stats.totalRevenue}` : '₹0'} color="#fef3c7" />
+        <StatCard icon="⏳" label="Pending Orders"   value={stats?.pendingOrders}                                 color="#fed7aa" />
+        <StatCard icon="⚠️" label="Low Stock Books"  value={stats?.lowStockProducts}                              color="#fee2e2" />
       </div>
 
       {/* Quick Actions */}
-      <div style={{ marginTop: '2rem' }}>
-        <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          ⚡ Quick Actions
-        </h2>
-        <div style={{ 
-          display: 'flex', 
-          gap: '1.5rem', 
-          marginTop: '1rem',
-          flexWrap: 'wrap'
-        }}>
-          <QuickActionCard 
-            icon="📖" 
-            label="Add New Book" 
-            onClick={() => window.location.href = '/admin/products'}
-          />
-          <QuickActionCard 
-            icon="📋" 
-            label="View All Orders" 
-            onClick={() => window.location.href = '/admin/orders'}
-          />
-          <QuickActionCard 
-            icon="👥" 
-            label="Manage Users" 
-            onClick={() => window.location.href = '/admin/users'}
-          />
-          <QuickActionCard 
-            icon="💳" 
-            label="View Payments" 
-            onClick={() => alert('Payments feature coming soon!')}
-          />
-        </div>
+      <h2 style={styles.sectionTitle}>⚡ Quick Actions</h2>
+      <div style={styles.actionsGrid}>
+        {[
+          { icon: '📖', label: 'Manage Books',  path: '/admin/products' },
+          { icon: '📋', label: 'View Orders',   path: '/admin/orders'   },
+          { icon: '👥', label: 'Manage Users',  path: '/admin/users'    },
+        ].map(({ icon, label, path }) => (
+          <div key={path} style={styles.actionCard} onClick={() => navigate(path)}>
+            <span style={{ fontSize: '2rem' }}>{icon}</span>
+            <p style={styles.actionLabel}>{label}</p>
+          </div>
+        ))}
       </div>
     </div>
   )
+}
+
+const styles = {
+  wrapper:      { maxWidth: '1100px', margin: '2rem auto', padding: '0 1.5rem' },
+  header:       { marginBottom: '2rem' },
+  title:        { fontSize: '1.8rem', fontWeight: '700', margin: 0 },
+  subtitle:     { color: '#6b7280', margin: '0.25rem 0 0' },
+  center:       { textAlign: 'center', marginTop: '4rem', color: '#666' },
+  error:        { color: '#c0392b', marginBottom: '1rem' },
+  statsGrid:    { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '2.5rem' },
+  statCard:     { background: '#fff', borderRadius: '8px', padding: '1.25rem', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: '1rem' },
+  statIcon:     { fontSize: '1.75rem', width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', flexShrink: 0 },
+  statLabel:    { color: '#6b7280', fontSize: '0.82rem', margin: 0 },
+  statValue:    { margin: '0.2rem 0 0', fontSize: '1.6rem', fontWeight: '700', color: '#1a1a1a' },
+  sectionTitle: { fontSize: '1.1rem', fontWeight: '700', marginBottom: '1rem' },
+  actionsGrid:  { display: 'flex', gap: '1.25rem', flexWrap: 'wrap' },
+  actionCard:   { background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '1.5rem 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', minWidth: '140px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', transition: 'box-shadow 0.2s' },
+  actionLabel:  { margin: 0, fontWeight: '600', fontSize: '0.9rem', color: '#374151' },
 }
 
 export default Dashboard

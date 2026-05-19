@@ -1,21 +1,41 @@
 package com.bookstore.config;
 
-import com.bookstore.entity.Category;
-import com.bookstore.entity.Product;
-import com.bookstore.modules.product.repository.CategoryRepository;
-import com.bookstore.modules.product.repository.ProductRepository;
+import java.math.BigDecimal;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.math.BigDecimal;
+import com.bookstore.entity.Category;
+import com.bookstore.entity.Product;
+import com.bookstore.entity.User;
+import com.bookstore.modules.product.repository.CategoryRepository;
+import com.bookstore.modules.product.repository.ProductRepository;
+import com.bookstore.modules.user.repository.UserRepository;
 
 @Configuration
 public class DataSeeder {
 
     @Bean
-    CommandLineRunner seedData(CategoryRepository categoryRepository, ProductRepository productRepository) {
+    CommandLineRunner seedData(CategoryRepository categoryRepository,
+                               ProductRepository productRepository,
+                               UserRepository userRepository,
+                               PasswordEncoder passwordEncoder) {
         return args -> {
+
+            // ── Seed Admin User ──────────────────────────────────────────────
+            if (userRepository.findByEmail("admin@bookstore.com").isEmpty()) {
+                User admin = new User();
+                admin.setName("Admin");
+                admin.setEmail("admin@bookstore.com");
+                admin.setPassword(passwordEncoder.encode("Admin@123"));
+                admin.setRole("ADMIN");
+                userRepository.save(admin);
+                System.out.println("✅ Admin user created: admin@bookstore.com / Admin@123");
+            }
+
+            // ── Seed Books ───────────────────────────────────────────────────
             if (productRepository.count() > 0) return; // already seeded
 
             // Categories

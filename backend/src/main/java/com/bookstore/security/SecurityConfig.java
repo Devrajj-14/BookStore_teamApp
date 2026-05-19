@@ -37,9 +37,12 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/auth/**",
-                    "/api/products/**",
+                    "/api/products",
+                    "/api/products/search",
+                    "/api/products/category/**",
+                    "/api/products/author",
+                    "/api/products/{id}",
                     "/api/categories/**",
-                    "/api/admin/**",
                     "/api/feedback/product/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
@@ -49,6 +52,7 @@ public class SecurityConfig {
                     "/api/",
                     "/error"
                 ).permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())
