@@ -41,7 +41,6 @@ public class WishlistService {
         this.wishlistMapper = wishlistMapper;
     }
 
-    // --- Get current logged-in user's ID via SecurityContext ---
     private Long getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
@@ -50,7 +49,6 @@ public class WishlistService {
         return user.getId();
     }
 
-    // --- Get or create wishlist for user ---
     private Wishlist getOrCreateWishlist(Long userId) {
         return wishlistRepository.findByUserId(userId).orElseGet(() -> {
             User user = userRepository.findById(userId)
@@ -72,19 +70,17 @@ public class WishlistService {
         return response;
     }
 
-    // --- Get wishlist ---
     public WishlistResponse getWishlist() {
         Long userId = getCurrentUserId();
         Wishlist wishlist = getOrCreateWishlist(userId);
         return buildWishlistResponse(wishlist);
     }
 
-    // --- Add product to wishlist ---
     @Transactional
     public WishlistResponse addToWishlist(Long productId) {
         Long userId = getCurrentUserId();
 
-        Product product = productRepository.findById(productId)
+        productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", productId));
 
         Wishlist wishlist = getOrCreateWishlist(userId);
@@ -93,6 +89,7 @@ public class WishlistService {
             throw new BadRequestException("Product is already in your wishlist");
         }
 
+        Product product = productRepository.findById(productId).get();
         WishlistItem item = new WishlistItem();
         item.setWishlist(wishlist);
         item.setProduct(product);
@@ -101,7 +98,6 @@ public class WishlistService {
         return buildWishlistResponse(wishlist);
     }
 
-    // --- Remove product from wishlist ---
     @Transactional
     public void removeFromWishlist(Long productId) {
         Long userId = getCurrentUserId();
@@ -114,7 +110,6 @@ public class WishlistService {
         wishlistItemRepository.delete(item);
     }
 
-    // --- Check if product is in wishlist ---
     public boolean isInWishlist(Long productId) {
         Long userId = getCurrentUserId();
         Wishlist wishlist = getOrCreateWishlist(userId);

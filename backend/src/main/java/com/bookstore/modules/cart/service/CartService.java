@@ -46,7 +46,6 @@ public class CartService {
         this.cartMapper = cartMapper;
     }
 
-    // --- Get current logged-in user's ID via SecurityContext ---
     private Long getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
@@ -55,7 +54,6 @@ public class CartService {
         return user.getId();
     }
 
-    // --- Get or create cart for user ---
     private Cart getOrCreateCart(Long userId) {
         return cartRepository.findByUserId(userId).orElseGet(() -> {
             User user = userRepository.findById(userId)
@@ -82,14 +80,12 @@ public class CartService {
         return response;
     }
 
-    // --- Get cart ---
     public CartResponse getCart() {
         Long userId = getCurrentUserId();
         Cart cart = getOrCreateCart(userId);
         return buildCartResponse(cart);
     }
 
-    // --- Add item to cart ---
     @Transactional
     public CartResponse addToCart(AddToCartRequest request) {
         Long userId = getCurrentUserId();
@@ -105,7 +101,6 @@ public class CartService {
         }
 
         Cart cart = getOrCreateCart(userId);
-
         Optional<CartItem> existing = cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId());
 
         if (existing.isPresent()) {
@@ -128,7 +123,6 @@ public class CartService {
         return buildCartResponse(cart);
     }
 
-    // --- Update cart item quantity ---
     @Transactional
     public CartResponse updateCartItem(Long itemId, UpdateCartItemRequest request) {
         Long userId = getCurrentUserId();
@@ -140,18 +134,15 @@ public class CartService {
         if (!item.getCart().getId().equals(cart.getId())) {
             throw new BadRequestException("Cart item does not belong to current user");
         }
-
         if (item.getProduct().getStockQuantity() < request.getQuantity()) {
             throw new BadRequestException(AppConstants.INSUFFICIENT_STOCK);
         }
 
         item.setQuantity(request.getQuantity());
         cartItemRepository.save(item);
-
         return buildCartResponse(cart);
     }
 
-    // --- Remove single item from cart ---
     @Transactional
     public void removeCartItem(Long itemId) {
         Long userId = getCurrentUserId();
@@ -163,11 +154,9 @@ public class CartService {
         if (!item.getCart().getId().equals(cart.getId())) {
             throw new BadRequestException("Cart item does not belong to current user");
         }
-
         cartItemRepository.delete(item);
     }
 
-    // --- Clear entire cart ---
     @Transactional
     public void clearCart() {
         Long userId = getCurrentUserId();
