@@ -101,6 +101,11 @@
             <version>1.18.36</version>
             <optional>true</optional>
         </dependency>
+<<<<<<< HEAD
+<<<<<<< Updated upstream
+=======
+=======
+>>>>>>> 7d6305e333995a1d1d89ddd2138dde9a7a3d3f9c
 
         <!-- MapStruct -->
         <dependency>
@@ -108,12 +113,16 @@
             <artifactId>mapstruct</artifactId>
             <version>1.5.5.Final</version>
         </dependency>
+<<<<<<< HEAD
+>>>>>>> Stashed changes
+=======
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-processor</artifactId>
             <version>1.5.5.Final</version>
             <scope>provided</scope>
         </dependency>
+>>>>>>> 7d6305e333995a1d1d89ddd2138dde9a7a3d3f9c
         
         <!-- Spring Boot Starter Test -->
         <dependency>

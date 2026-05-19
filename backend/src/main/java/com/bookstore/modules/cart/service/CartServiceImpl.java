@@ -1,23 +1,59 @@
 package com.bookstore.modules.cart.service;
 
-import com.bookstore.modules.BaseService;
+import com.bookstore.common.AppConstants;
+import com.bookstore.entity.Cart;
+import com.bookstore.entity.CartItem;
+import com.bookstore.entity.Product;
+import com.bookstore.entity.User;
+import com.bookstore.exception.BadRequestException;
+import com.bookstore.exception.ResourceNotFoundException;
 import com.bookstore.modules.cart.dto.AddToCartRequest;
+import com.bookstore.modules.cart.dto.CartItemResponse;
 import com.bookstore.modules.cart.dto.CartResponse;
 import com.bookstore.modules.cart.dto.UpdateCartItemRequest;
+import com.bookstore.modules.cart.mapper.CartMapper;
+import com.bookstore.modules.cart.repository.CartItemRepository;
+import com.bookstore.modules.cart.repository.CartRepository;
+import com.bookstore.modules.product.repository.ProductRepository;
+import com.bookstore.modules.user.repository.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-public interface CartService extends BaseService {
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 
-    CartResponse getCart();
+@Service
+public class CartServiceImpl implements CartService {
 
-    CartResponse addToCart(AddToCartRequest request);
+    private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+    private final CartMapper cartMapper;
 
-    CartResponse updateCartItem(Long itemId, UpdateCartItemRequest request);
+    public CartServiceImpl(CartRepository cartRepository,
+                           CartItemRepository cartItemRepository,
+                           ProductRepository productRepository,
+                           UserRepository userRepository,
+                           CartMapper cartMapper) {
+        this.cartRepository = cartRepository;
+        this.cartItemRepository = cartItemRepository;
+        this.productRepository = productRepository;
+        this.userRepository = userRepository;
+        this.cartMapper = cartMapper;
+    }
 
-    void removeCartItem(Long itemId);
+    private Long getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return user.getId();
+    }
 
-<<<<<<< HEAD
-    void clearCart();
-=======
     private Cart getOrCreateCart(Long userId) {
         return cartRepository.findByUserId(userId).orElseGet(() -> {
             User user = userRepository.findById(userId)
@@ -29,7 +65,6 @@ public interface CartService extends BaseService {
         });
     }
 
-    // --- Build CartResponse using MapStruct ---
     private CartResponse buildCartResponse(Cart cart) {
         List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
         List<CartItemResponse> itemResponses = cartMapper.toCartItemResponseList(items);
@@ -38,18 +73,20 @@ public interface CartService extends BaseService {
                 .map(CartItemResponse::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        CartResponse response = cartMapper.toCartResponse(cart, items);
+        CartResponse response = cartMapper.toCartResponse(cart);
         response.setItems(itemResponses);
         response.setTotalAmount(total);
         return response;
     }
 
+    @Override
     public CartResponse getCart() {
         Long userId = getCurrentUserId();
         Cart cart = getOrCreateCart(userId);
         return buildCartResponse(cart);
     }
 
+    @Override
     @Transactional
     public CartResponse addToCart(AddToCartRequest request) {
         Long userId = getCurrentUserId();
@@ -87,6 +124,7 @@ public interface CartService extends BaseService {
         return buildCartResponse(cart);
     }
 
+    @Override
     @Transactional
     public CartResponse updateCartItem(Long itemId, UpdateCartItemRequest request) {
         Long userId = getCurrentUserId();
@@ -107,6 +145,7 @@ public interface CartService extends BaseService {
         return buildCartResponse(cart);
     }
 
+    @Override
     @Transactional
     public void removeCartItem(Long itemId) {
         Long userId = getCurrentUserId();
@@ -121,11 +160,11 @@ public interface CartService extends BaseService {
         cartItemRepository.delete(item);
     }
 
+    @Override
     @Transactional
     public void clearCart() {
         Long userId = getCurrentUserId();
         Cart cart = getOrCreateCart(userId);
         cartItemRepository.deleteByCartId(cart.getId());
     }
->>>>>>> 7d6305e333995a1d1d89ddd2138dde9a7a3d3f9c
 }
