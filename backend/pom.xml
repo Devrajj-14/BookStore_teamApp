@@ -101,6 +101,16 @@
             <version>1.18.36</version>
             <optional>true</optional>
         </dependency>
+<<<<<<< Updated upstream
+=======
+
+        <!-- MapStruct -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.5.5.Final</version>
+        </dependency>
+>>>>>>> Stashed changes
         
         <!-- Spring Boot Starter Test -->
         <dependency>
