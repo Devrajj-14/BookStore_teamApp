@@ -5,6 +5,7 @@ import { getProductById } from '../api/productApi'
 import { addToCart } from '../api/cartApi'
 import { getProductFeedback, getRatingSummary, submitFeedback, updateFeedback, deleteFeedback } from '../api/feedbackApi'
 import { addToWishlist, checkInWishlist } from '../api/wishlistApi'
+import { getMyOrders } from '../api/orderApi'
 
 // Star display helper
 const Stars = ({ rating, size = '1rem' }) => {
@@ -34,6 +35,9 @@ const BookDetails = () => {
   const [inWishlist, setInWishlist] = useState(false)
   const [wishlistMsg, setWishlistMsg] = useState('')
   const [wishlistLoading, setWishlistLoading] = useState(false)
+
+  // Purchase check for review eligibility
+  const [hasPurchased, setHasPurchased] = useState(false)
 
   // Review form
   const [showForm, setShowForm] = useState(false)
@@ -67,6 +71,18 @@ const BookDetails = () => {
           setInWishlist(wishlistRes.data.data)
         } catch {
           setInWishlist(false)
+        }
+
+        // Check if user has purchased this product (any order status)
+        try {
+          const ordersRes = await getMyOrders()
+          const orders = ordersRes.data.data || []
+          const purchased = orders.some((order) =>
+            order.items && order.items.some((item) => item.productId === Number(id))
+          )
+          setHasPurchased(purchased)
+        } catch {
+          setHasPurchased(false)
         }
       }
     } catch (err) {
@@ -243,9 +259,14 @@ const BookDetails = () => {
         <div style={styles.reviewsHeader}>
           <h3 style={styles.sectionTitle}>Customer Reviews</h3>
           {user && !myReview && !showForm && (
-            <button style={styles.btnSecondary} onClick={() => { setShowForm(true); setEditingId(null); setFormRating(5); setFormComment('') }}>
-              Write a Review
-            </button>
+            hasPurchased
+              ? (
+                <button style={styles.btnSecondary} onClick={() => { setShowForm(true); setEditingId(null); setFormRating(5); setFormComment('') }}>
+                  Write a Review
+                </button>
+              ) : (
+                <span style={styles.purchaseNote}>Purchase this book to leave a review</span>
+              )
           )}
         </div>
 
@@ -386,6 +407,7 @@ const styles = {
   reviewActions: { display: 'flex', gap: '1rem', marginTop: '0.5rem' },
   linkBtn: { background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.85rem', color: '#333', padding: 0 },
   muted: { color: '#888', fontSize: '0.9rem' },
+  purchaseNote: { fontSize: '0.85rem', color: '#888', fontStyle: 'italic' },
   btnPrimary: {
     padding: '0.75rem 1.5rem', background: '#333', color: '#fff',
     border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1rem',

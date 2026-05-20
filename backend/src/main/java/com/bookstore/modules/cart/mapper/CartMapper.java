@@ -1,42 +1,29 @@
 package com.bookstore.modules.cart.mapper;
 
+import java.util.List;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
 import com.bookstore.entity.Cart;
 import com.bookstore.entity.CartItem;
 import com.bookstore.modules.cart.dto.CartItemResponse;
 import com.bookstore.modules.cart.dto.CartResponse;
-import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Collectors;
+@Mapper(componentModel = "spring")
+public interface CartMapper {
 
-@Component
-public class CartMapper {
+    @Mapping(target = "productId",       source = "product.id")
+    @Mapping(target = "productTitle",    source = "product.title")
+    @Mapping(target = "productImage",    source = "product.imageUrl")
+    @Mapping(target = "subtotal",
+             expression = "java(item.getUnitPrice().multiply(java.math.BigDecimal.valueOf(item.getQuantity())))")
+    CartItemResponse toCartItemResponse(CartItem item);
 
-    public CartItemResponse toCartItemResponse(CartItem item) {
-        CartItemResponse r = new CartItemResponse();
-        r.setId(item.getId());
-        r.setProductId(item.getProduct().getId());
-        r.setProductTitle(item.getProduct().getTitle());
-        r.setProductImage(item.getProduct().getImageUrl());
-        r.setUnitPrice(item.getUnitPrice());
-        r.setQuantity(item.getQuantity());
-        if (item.getUnitPrice() != null && item.getQuantity() != null) {
-            r.setSubtotal(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
-        }
-        return r;
-    }
+    List<CartItemResponse> toCartItemResponseList(List<CartItem> items);
 
-    public List<CartItemResponse> toCartItemResponseList(List<CartItem> items) {
-        return items.stream()
-                .map(this::toCartItemResponse)
-                .collect(Collectors.toList());
-    }
-
-    public CartResponse toCartResponse(Cart cart) {
-        CartResponse r = new CartResponse();
-        r.setId(cart.getId());
-        r.setUserId(cart.getUser().getId());
-        return r;
-    }
+    @Mapping(target = "userId",      source = "user.id")
+    @Mapping(target = "items",       ignore = true)
+    @Mapping(target = "totalAmount", ignore = true)
+    CartResponse toCartResponse(Cart cart);
 }

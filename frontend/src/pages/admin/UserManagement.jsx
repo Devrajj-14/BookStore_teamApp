@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import axiosClient from '../../api/axiosClient'
 
 const UserManagement = () => {
   const [users, setUsers] = useState([])
@@ -9,9 +10,8 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       setLoading(true)
       try {
-        const res = await fetch('/api/admin/users')
-        const json = await res.json()
-        setUsers(json.data || [])
+        const res = await axiosClient.get('/api/admin/users')
+        setUsers(res.data.data || [])
       } catch (err) {
         console.error('Failed to fetch users:', err)
       } finally {

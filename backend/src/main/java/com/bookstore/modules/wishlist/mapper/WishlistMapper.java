@@ -1,39 +1,31 @@
 package com.bookstore.modules.wishlist.mapper;
 
+import java.util.List;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
 import com.bookstore.entity.Wishlist;
 import com.bookstore.entity.WishlistItem;
 import com.bookstore.modules.wishlist.dto.WishlistItemResponse;
 import com.bookstore.modules.wishlist.dto.WishlistResponse;
-import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Collectors;
+@Mapper(componentModel = "spring")
+public interface WishlistMapper {
 
-@Component
-public class WishlistMapper {
+    @Mapping(target = "productId",    source = "product.id")
+    @Mapping(target = "productTitle", source = "product.title")
+    @Mapping(target = "productAuthor",source = "product.author")
+    @Mapping(target = "productImage", source = "product.imageUrl")
+    @Mapping(target = "productPrice", source = "product.price")
+    @Mapping(target = "inStock",
+             expression = "java(item.getProduct().getStockQuantity() > 0)")
+    WishlistItemResponse toWishlistItemResponse(WishlistItem item);
 
-    public WishlistItemResponse toWishlistItemResponse(WishlistItem item) {
-        WishlistItemResponse r = new WishlistItemResponse();
-        r.setId(item.getId());
-        r.setProductId(item.getProduct().getId());
-        r.setProductTitle(item.getProduct().getTitle());
-        r.setProductAuthor(item.getProduct().getAuthor());
-        r.setProductImage(item.getProduct().getImageUrl());
-        r.setProductPrice(item.getProduct().getPrice());
-        r.setInStock(item.getProduct().getStockQuantity() > 0);
-        return r;
-    }
+    List<WishlistItemResponse> toWishlistItemResponseList(List<WishlistItem> items);
 
-    public List<WishlistItemResponse> toWishlistItemResponseList(List<WishlistItem> items) {
-        return items.stream()
-                .map(this::toWishlistItemResponse)
-                .collect(Collectors.toList());
-    }
-
-    public WishlistResponse toWishlistResponse(Wishlist wishlist) {
-        WishlistResponse r = new WishlistResponse();
-        r.setId(wishlist.getId());
-        r.setUserId(wishlist.getUser().getId());
-        return r;
-    }
+    @Mapping(target = "userId",     source = "user.id")
+    @Mapping(target = "items",      ignore = true)
+    @Mapping(target = "totalItems", ignore = true)
+    WishlistResponse toWishlistResponse(Wishlist wishlist);
 }

@@ -1,7 +1,18 @@
 package com.bookstore.entity;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "feedback", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "product_id"}))
@@ -22,8 +33,7 @@ public class Feedback {
     @Column(nullable = false)
     private Integer rating;
 
-    @Lob
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String comment;
 
     @Column(name = "created_at", nullable = false, updatable = false)
